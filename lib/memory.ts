@@ -1,6 +1,6 @@
 import { Redis } from '@upstash/redis'
 import { OpenAIEmbeddings } from 'langchain/embeddings/openai'
-import { Pinecone } from '@pinecone-database/pinecone'
+import { PineconeClient } from '@pinecone-database/pinecone'
 import { PineconeStore } from 'langchain/vectorstores/pinecone'
 
 export type CompanionKey = {
@@ -13,15 +13,15 @@ export class MemoryManager {
   // eslint-disable-next-line no-use-before-define
   private static instance: MemoryManager
   private history: Redis
-  private vectorDBClient: Pinecone
+  private vectorDBClient: PineconeClient
 
   public constructor() {
     this.history = Redis.fromEnv()
-    this.vectorDBClient = new Pinecone()
+    this.vectorDBClient = new PineconeClient()
   }
 
   public async init() {
-    if (this.vectorDBClient instanceof Pinecone) {
+    if (this.vectorDBClient instanceof PineconeClient) {
       await this.vectorDBClient.init({
         apiKey: process.env.PINECONE_API_KEY!,
         environment: process.env.PINECONE_ENVIRONMENT!,
@@ -33,9 +33,11 @@ export class MemoryManager {
     recentChatHistory: string,
     companionFileName: string,
   ) {
-    const pinecone = <Pinecone>this.vectorDBClient
+    const pineconeClient = <PineconeClient>this.vectorDBClient
 
-    const pineconeIndex = pinecone.Index(process.env.PINECONE_INDEX! || '')
+    const pineconeIndex = pineconeClient.Index(
+      process.env.PINECONE_INDEX! || '',
+    )
 
     const vectorStore = await PineconeStore.fromExistingIndex(
       new OpenAIEmbeddings({ openAIApiKey: process.env.OPENAI_API_KEY }),
