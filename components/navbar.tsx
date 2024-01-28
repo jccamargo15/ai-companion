@@ -23,7 +23,7 @@ export const Navbar = () => {
         <Link href="/">
           <h1
             className={cn(
-              'hidden md:block text-xl md:text-3xl font-bold text-primaryk',
+              'hidden md:block text-xl md:text-3xl font-bold text-primary',
               font.className,
             )}
           >
